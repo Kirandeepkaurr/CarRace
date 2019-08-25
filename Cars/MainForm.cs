@@ -15,40 +15,36 @@ namespace CarRace
     public partial class MainForm : Form
     {
         uint hdc;
-        int selectedCamara = 2;
-        int count,bustCount=0;
+        int selectedCamara = 3; 
+        int count,bustCount=0; //initializing variables for race
         Controller control = new Controller();
         int mostrado = 0;
         int moving;
-        int joeMax = 45, bobMax = 50, AIMax = 75;
-        bool joeWon = false, bobWon = false, AIWon = false;
-        int []carno = new int[3];
-        int []betValue = new int[3];
+        int joe_total = 50, bob_total = 50, ai_total = 50; //setting total amount
+        bool joewins = false, bobwins = false, aiwins = false; //no one wins initially
+        int []betno = new int[3]; //betting for betters 
+        int[] betValue = new int[3]; //betvalue for betters
         public MainForm()
         {
             InitializeComponent();
-            //identificador del lugar en donde voy a dibujar
+           
             hdc = (uint)this.Handle;
-            //toma el error que sucedio
             string error = "";
-            //Comando de inicializacion de la ventana grafica
             OpenGLControl.OpenGLInit(ref hdc, this.Width, this.Height, ref error);
 
-            //inicia la posicion de la camara asi como define en angulo de perspectiva,etc etc
             control.Camara.SetPerspective();
             if (error != "")
             {
-                MessageBox.Show("Ocurrio un error al inicializar openGL");
+                MessageBox.Show("an error occurred ");
                 this.Close();   
             }
 
-            //Habilita las luces
             
             //float[] lightAmbient = { 0.15F, 0.15F, 0.15F, 0.0F };
 
             //Lighting.LightAmbient = lightAmbient; 
             
-            Lighting.SetupLighting();  // encapsulado en el sahdow engine 
+            Lighting.SetupLighting(); 
             
             ContentManager.SetTextureList("texturas\\");
             ContentManager.LoadTextures();
@@ -58,7 +54,20 @@ namespace CarRace
 
             //Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_LINE);   
         }
-
+        //initializing local variables for unit testing
+        public MainForm(bool joewon,bool bobwon, bool aiwon,int totalMoney)
+        {
+            joewins = joewon;
+            bobwins = bobwon;
+            aiwins = aiwon;
+            joe_total = totalMoney;
+            bob_total = totalMoney + 10;
+            ai_total = totalMoney + 20;
+            
+        }
+        /// <summary>
+        /// race ends 
+        /// </summary>
         public void UpdateLogic()
         {
             if (moving == 1)
@@ -73,25 +82,47 @@ namespace CarRace
             count++;
             if (Controller.FinishedRace == true && mostrado == 0)
             {
+                int result;
+                MainBetterClass obj = new MainBetterClass();
                 mostrado = 1;
                 moving = 0;
-                MessageBox.Show("The winner was the: " + lblPrimero.Text);
-                if (lblPrimero.Text == "Blue car")
+                //Display Result
+                MessageBox.Show("The winner was the: " + lblPrimero.Text + " (car no: " +lblbetno.Text+ ")");
+                //Update Amount Remaining and wining status 
+                if (lblPrimero.Text == "Blue car") 
                 {
-                    whowon(1);
+                    result = obj.whowon(betno,1);
                 }
                 else if (lblPrimero.Text == "Red car")
                 {
-                    whowon(2);
+                    result = obj.whowon(betno,2);
+                }
+                else if (lblPrimero.Text == "Green car")
+                {
+                    result = obj.whowon(betno,3);
                 }
                 else
                 {
-                    whowon(3);
+                    result = obj.whowon(betno,4);
                 }
+                if (result == 0)
+                {
+                    joewins = true;
+                }
+                else if(result == 1)
+                {
+                    bobwins = true;
+                }
+                else if(result == 2)
+                {
+                    aiwins = true;
+                }
+                //function to update textboxes for betting amount left and status of betters 
                 changeText();
+                //set old betno and betvalue to 0
                 for (int i = 0; i < 3; i++)
                 {
-                    carno[i] = 0;
+                    betno[i] = 0;
                     betValue[i] = 0;
                 }
 
@@ -109,19 +140,29 @@ namespace CarRace
                         case 0:
                             {
                                 lblPrimero.Text = "Blue car";
+                                lblbetno.Text = "1";
                                 lblPrimero.ForeColor = Color.Blue;
                                 break;
                             }
                         case 1:
                             {
                                 lblPrimero.Text = "Red car";
+                                lblbetno.Text = "2";
                                 lblPrimero.ForeColor = Color.Red;
                                 break;
                             }
                         case 2:
                             {
-                                lblPrimero.Text = "Black car";
-                                lblPrimero.ForeColor = Color.Black;
+                                lblPrimero.Text = "Green car";
+                                lblbetno.Text = "3";
+                                lblPrimero.ForeColor = Color.Green;
+                                break;
+                            }
+                        case 3:
+                            {
+                                lblPrimero.Text = "Gold car";
+                                lblbetno.Text = "4";
+                                lblPrimero.ForeColor = Color.Goldenrod;
                                 break;
                             }
                     }
@@ -143,11 +184,14 @@ namespace CarRace
             //tell opengl to drop any operation he is doing and to prepare for a new frame
             Gl.glFlush(); 
         }
-
+        //Minimum value for carno to bet no = 4
         private void MainForm_Load(object sender, EventArgs e)
         {
             numericCar.Minimum = 1;
-            numericCar.Maximum = 3;
+            numericCar.Maximum = 4;
+            maxlbl.ForeColor = Color.Yellow;
+            lblWhoBets.ForeColor = Color.Yellow;
+            this.WindowState = FormWindowState.Maximized;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -224,11 +268,11 @@ namespace CarRace
         {
 
         }
-
+        //update better name and better total amount based on radio button click and 
         private void RadioButton1_CheckedChanged(object sender, EventArgs e)
         {
-            maxlbl.Text = Convert.ToString(joeMax);
-            numericBet.Maximum = joeMax;
+            maxlbl.Text = Convert.ToString(joe_total);
+            numericBet.Maximum = joe_total;
             lblWhoBets.Text = "Joe ";
         }
 
@@ -239,64 +283,70 @@ namespace CarRace
 
         private void RadioButton2_CheckedChanged(object sender, EventArgs e)
         {
-            maxlbl.Text = Convert.ToString(bobMax);
-            numericBet.Maximum = bobMax;
+            maxlbl.Text = Convert.ToString(bob_total);
+            numericBet.Maximum = bob_total;
             lblWhoBets.Text = "Bob ";
         }
 
         private void RadioButton3_CheckedChanged(object sender, EventArgs e)
         {
-            maxlbl.Text = Convert.ToString(AIMax);
-            numericBet.Maximum = AIMax;
+            maxlbl.Text = Convert.ToString(ai_total);
+            numericBet.Maximum = ai_total;
             lblWhoBets.Text = "AI ";
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void numericBet_ValueChanged(object sender, EventArgs e)
+        {
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
         }
 
         private void Panel4_Paint(object sender, PaintEventArgs e)
         {
 
         }
-
+        //initialize bets placed before race start
         private void Button4_Click(object sender, EventArgs e)
         {
             if (lblWhoBets.Text == "Joe ")
             {
                 txtJoe.Text = lblWhoBets.Text + " bets " + numericBet.Value + " on car " + numericCar.Value;
-                carno[0] = Convert.ToInt32(numericCar.Value);
+                betno[0] = Convert.ToInt32(numericCar.Value);
                 betValue[0] = Convert.ToInt32(numericBet.Value);
             }
             else if (lblWhoBets.Text == "Bob ") { 
                 txtBob.Text = lblWhoBets.Text + " bets " + numericBet.Value + " on car " + numericCar.Value;
-                carno[1] = Convert.ToInt32(numericCar.Value);
+                betno[1] = Convert.ToInt32(numericCar.Value);
                 betValue[1] = Convert.ToInt32(numericBet.Value);
             }
             else { 
                 txtAI.Text = lblWhoBets.Text + " bets " + numericBet.Value + " on car " + numericCar.Value;
-                carno[2] = Convert.ToInt32(numericCar.Value);
+                betno[2] = Convert.ToInt32(numericCar.Value);
                 betValue[2] = Convert.ToInt32(numericBet.Value);
             }
         }
-        private void whowon(int no)
+        //change bet values placed with winners and win amount , losers and lost amount
+        public void changeText()
         {
-            if (carno[0] == no)
-                joeWon = true;
-            if (carno[1] == no)
-                bobWon = true;
-            if (carno[2] == no)
-                AIWon = true;
-
-        }
-        private void changeText()
-        {
-            if (joeWon == true)
+            MainBetterClass better = new MainBetterClass();
+            if (joewins == true)
             {
-                joeMax = Convert.ToInt32(joeMax + betValue[0]);
-                txtJoe.Text = "Joe won and now has " + joeMax;
-                joeWon = false;
+                joe_total = Convert.ToInt32(joe_total + betValue[0]);
+                txtJoe.Text = better.getName(0) + " won and now has " + joe_total;
+                joewins = false;
             }
             else
             {
-                joeMax = Convert.ToInt32(joeMax - betValue[0]);
-                if(joeMax <= 0)
+                joe_total = Convert.ToInt32(joe_total - betValue[0]);
+                if(joe_total <= 0)
                 {
                     txtJoe.Text = "Busted";
                     txtJoe.ForeColor = Color.Red;
@@ -305,19 +355,19 @@ namespace CarRace
                 }
                 else
                 {
-                    txtJoe.Text = "Joe lost and now has" + joeMax;
+                    txtJoe.Text = better.getName(0) + " lost and now has" + joe_total;
                 }
             }
-            if(bobWon == true)
+            if(bobwins == true)
             {
-                bobMax = Convert.ToInt32(bobMax + betValue[1]);
-                txtBob.Text = "Bob won and now has " + bobMax;
-                bobWon = false;
+                bob_total = Convert.ToInt32(bob_total + betValue[1]);
+                txtBob.Text = better.getName(1) + " won and now has " + bob_total;
+                bobwins = false;
             }
             else
             {
-                bobMax = Convert.ToInt32(bobMax - betValue[1]);
-                if (bobMax <= 0)
+                bob_total = Convert.ToInt32(bob_total - betValue[1]);
+                if (bob_total <= 0)
                 {
                     txtBob.Text = "Busted";
                     rbBob.Enabled = false;
@@ -326,19 +376,19 @@ namespace CarRace
                 }
                 else
                 {
-                    txtBob.Text = "Bob lost and now has " + bobMax;
+                    txtBob.Text = better.getName(1) + " lost and now has " + bob_total;
                 }
             }
-            if(AIWon == true)
+            if(aiwins == true)
             {
-                AIMax = Convert.ToInt32(AIMax + betValue[2]);
-                txtAI.Text = "AI won and now has " + AIMax;
-                AIWon = false;
+                ai_total = Convert.ToInt32(ai_total + betValue[2]);
+                txtAI.Text = better.getName(2) + " won and now has " + ai_total;
+                aiwins = false;
             }
             else
             {
-                AIMax = Convert.ToInt32(AIMax - betValue[2]);
-                if (AIMax <= 0)
+                ai_total = Convert.ToInt32(ai_total - betValue[2]);
+                if (ai_total <= 0)
                 {
                     txtAI.Text = "Busted";
                     rbAI.Enabled = false;
@@ -347,13 +397,46 @@ namespace CarRace
                 }
                 else
                 {
-                    txtAI.Text = "AI lost and now has " + AIMax;
+                    txtAI.Text = better.getName(2) + " lost and now has " + ai_total;
                 }
             }
             if(bustCount > 1)
             {
                 MessageBox.Show("Game Over");                
             }
+        }
+        /// <summary>
+        /// Unit Testing 
+        /// </summary>
+        /// <returns></returns>
+        public string unitTest()
+        {
+            string result = "";
+            if (joewins == true)
+            {
+                result += "joe won " + (2 * joe_total) + Environment.NewLine;
+            }
+            else
+            {
+                result += "Busted" + Environment.NewLine;
+            }
+            if (bobwins == true)
+            {
+                result += "bob won " + (2 * bob_total) + Environment.NewLine;
+            }
+            else
+            {
+                result += "Busted" + Environment.NewLine;
+            }
+            if (aiwins == true)
+            {
+                result += "ai won " + (2 * ai_total) + Environment.NewLine;
+            }
+            else
+            {
+                result += "Busted" + Environment.NewLine;
+            }
+            return result;
         }
     }
 }

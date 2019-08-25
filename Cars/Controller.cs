@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CarRace
 {
-    public struct Position
+    public struct Position 
     {
         public float x;
         public float y;
@@ -18,7 +18,7 @@ namespace CarRace
 
     public class Controller
     {
-        Car[] cars = new Car[3];
+        Car[] cars = new Car[4];
         World world = new World(); 
         Camara camara = new Camara();
         Road road = new Road();
@@ -83,29 +83,72 @@ namespace CarRace
                     {
                         if (cars[1].TraveledDistance > cars[2].TraveledDistance)
                         {
-                            return 1;
+                            if (cars[1].TraveledDistance > cars[3].TraveledDistance)
+                                return 1;
+                            else
+                                return 3;
                         }
-                        else
-                            return 2;
+                        else 
+                        {
+                            if (cars[2].TraveledDistance > cars[3].TraveledDistance)
+                                return 2;
+                            else
+                                return 3;
+                        }
+                           
                     }
                 case 1:
                     {
                         if (cars[0].TraveledDistance > cars[2].TraveledDistance)
                         {
-                            return 0;
+                            if (cars[0].TraveledDistance > cars[3].TraveledDistance)
+                                return 0;
+                            else
+                                return 3;
                         }
                         else
-                            return 2;
+                        {
+                            if (cars[2].TraveledDistance > cars[3].TraveledDistance)
+                                return 2;
+                            else
+                                return 3;
+                        }
                     }
                 case 2:
                     {
                         if (cars[0].TraveledDistance > cars[1].TraveledDistance)
                         {
-                            return 0;
+                            if (cars[0].TraveledDistance > cars[3].TraveledDistance)
+                                return 0;
+                            else
+                                return 3;
                         }
                         else
-                            return 1;
+                        {
+                            if (cars[1].TraveledDistance > cars[3].TraveledDistance)
+                                return 1;
+                            else
+                                return 3;
+                        }
                     }
+                case 3:
+                    {
+                        if (cars[0].TraveledDistance > cars[1].TraveledDistance)
+                        {
+                            if (cars[0].TraveledDistance > cars[2].TraveledDistance)
+                                return 0;
+                            else
+                                return 2;
+                        }
+                        else
+                        {
+                            if (cars[1].TraveledDistance > cars[2].TraveledDistance)
+                                return 1;
+                            else
+                                return 2;
+                        }
+                    }
+
                 default:
                     break;
             }

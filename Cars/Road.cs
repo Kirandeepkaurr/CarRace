@@ -33,7 +33,7 @@ namespace CarRace
 
             //end line
             Gl.glPushMatrix();
-            Gl.glTranslatef(0, 0, -50);
+            Gl.glTranslatef(0, 0, -40);
             Gl.glBegin(Gl.GL_QUADS);
             Gl.glTexCoord2f(0.0f, 0.0f); Gl.glVertex3f(-0.5f, 0.05f, 0);
             Gl.glTexCoord2f(0.0f, 1.0f); Gl.glVertex3f(-0.5f, 0.05f, 1);
@@ -47,7 +47,7 @@ namespace CarRace
             Gl.glEnable(Gl.GL_TEXTURE_2D);
             Gl.glBindTexture(Gl.GL_TEXTURE_2D, texturaAsfalto);
             Gl.glPushMatrix();
-            Gl.glTranslatef(0, 0, -100);
+            Gl.glTranslatef(0, 0, -80);
 
             int count = 0;
             for (int y = 0; y < 40; y++)// this for loop draws the road

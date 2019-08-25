@@ -39,17 +39,22 @@ namespace CarRace
             if (carColor == 1)
             {
                 color = Color.Blue;
-                pos = new Position(0, 10);  
+                pos = new Position(-0.4f, 10);  
             }
             if (carColor == 2)
             {
                 color = Color.Red;
-                pos = new Position(1.5f, 10);  
+                pos = new Position(0.9f, 10);  
             }
             if (carColor == 3)
             {
-                color = Color.Black;
-                pos = new Position(3, 10);
+                color = Color.Green;
+                pos = new Position(2.1f, 10);
+            }
+            if (carColor == 4)
+            {
+                color = Color.Gold;
+                pos = new Position(3.4f, 10);
             }
             carColor++;
             speed = 0.2f + (float)randomizer.NextDouble() / 18f;
@@ -98,12 +103,17 @@ namespace CarRace
             {
                 texture = ContentManager.GetTextureByName("bodyRed.jpg");
             }
-            if (color == Color.Black)
+            if (color == Color.Green)
             {
-                texture = ContentManager.GetTextureByName("bodyBlack.jpg");
+                texture = ContentManager.GetTextureByName("bodyGreen.jpg");
+            }
+            if (color == Color.Gold)
+            {
+                texture = ContentManager.GetTextureByName("bodyGold.jpg");
                 m.RemoveMeshesWithName("body");
                 m.RemoveMeshesWithName("tire");
                 m.RemoveMeshesWithName("rim");
+
             }
         }
 
